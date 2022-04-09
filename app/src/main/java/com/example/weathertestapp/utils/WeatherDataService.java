@@ -2,21 +2,20 @@ package com.example.weathertestapp.utils;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.example.weathertestapp.WeatherModel;
+import com.example.weathertestapp.Model.WeatherDataModel.ConsolidatedWeather;
+import com.example.weathertestapp.Model.WeatherDataModel.WeatherModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class WeatherDataService {
@@ -51,7 +50,7 @@ public class WeatherDataService {
 
             @Override
             public void onResponse(JSONArray response) {
-                 cityId = "";
+                cityId = "";
                 try {
                     JSONObject cityInfo = response.getJSONObject(0);
                     cityId = cityInfo.getString("woeid");
@@ -83,10 +82,10 @@ public class WeatherDataService {
     public interface WeatherForecastResponse {
         void onError(String message);
 
-        void onResponse(ArrayList<WeatherModel> response);
+        void onResponse(ArrayList<ConsolidatedWeather> response);
     }
 
-    public void getWeatherForecastByID(String id,WeatherForecastResponse listener){
+    public void getWeatherForecastByID(String id, WeatherForecastResponse listener) {
         List<WeatherModel> report = new ArrayList<>();
 
 
@@ -102,31 +101,33 @@ public class WeatherDataService {
                     JSONArray apiResponse = response.getJSONArray("consolidated_weather");
                     progressDialog.dismiss();
 
-                    ArrayList<WeatherModel> _list = new ArrayList<>();
-                    for(int i=0; i<apiResponse.length(); i++){
+                    ArrayList<ConsolidatedWeather> _list = new ArrayList<>();
+                    for (int i = 0; i < apiResponse.length(); i++) {
                         JSONObject data = (JSONObject) apiResponse.get(i);
-                        WeatherModel weatherModel = new WeatherModel();
-                        weatherModel.setId(data.getInt("id"));
-                        weatherModel.setWeather_state_name(data.getString("weather_state_name"));
-                        weatherModel.setWeather_state_abbr(data.getString("weather_state_abbr"));
-                        weatherModel.setWind_direction_compass(data.getString("wind_direction_compass"));
-                        weatherModel.setCreated(data.getString("created"));
-                        weatherModel.setApplicable_date(data.getString("applicable_date"));
-                        weatherModel.setMin_temp(data.getDouble("min_temp"));
-                        weatherModel.setMax_temp(data.getDouble("max_temp"));
-                        weatherModel.setThe_temp(data.getDouble("the_temp"));
-                        weatherModel.setWind_speed(data.getDouble("wind_speed"));
-                        weatherModel.setWind_direction(data.getDouble("wind_direction"));
-                        weatherModel.setAir_pressure(data.getDouble("air_pressure"));
-                        weatherModel.setHumidity(data.getInt("humidity"));
-                        weatherModel.setVisibility(data.getDouble("visibility"));
-                        weatherModel.setPredictability(data.getInt("predictability"));
-                        _list.add(weatherModel);
+
+                        ConsolidatedWeather consolidatedWeather = new ConsolidatedWeather();
+                        consolidatedWeather.setID(data.getInt("id"));
+                        consolidatedWeather.setWeatherStateName(data.getString("weather_state_name"));
+                        consolidatedWeather.setWeatherStateAbbr(data.getString("weather_state_abbr"));
+                        consolidatedWeather.setWindDirectionCompass(data.getString("wind_direction_compass"));
+//                        consolidatedWeather.setCreated(data.get("created"));
+//                        consolidatedWeather.setApplicableDate(data.getAp("applicable_date"));
+                        consolidatedWeather.setMinTemp(data.getDouble("min_temp"));
+                        consolidatedWeather.setMaxTemp(data.getDouble("max_temp"));
+                        consolidatedWeather.setTheTemp(data.getDouble("the_temp"));
+                        consolidatedWeather.setWindSpeed(data.getDouble("wind_speed"));
+                        consolidatedWeather.setWindDirection(data.getDouble("wind_direction"));
+                        consolidatedWeather.setAirPressure(data.getDouble("air_pressure"));
+                        consolidatedWeather.setHumidity(data.getInt("humidity"));
+                        consolidatedWeather.setVisibility(data.getDouble("visibility"));
+                        consolidatedWeather.setPredictability(data.getInt("predictability"));
+
+                        _list.add(consolidatedWeather);
 
 
                     }
                     listener.onResponse(_list);
-                }catch (JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                     progressDialog.dismiss();
 
@@ -139,7 +140,6 @@ public class WeatherDataService {
             public void onErrorResponse(VolleyError error) {
                 listener.onError("Something wrong!");
                 progressDialog.dismiss();
-
 
             }
         }
